@@ -1,7 +1,8 @@
 var mds = require('mongo-dump-stream'),
     AWS = require('aws-sdk'),
     moment = require('moment'),
-    MemoryStream = require('memorystream');
+    MemoryStream = require('memorystream'),
+    zlib = require('zlib');
 
 function isValidConfig(config) {
     return (config.mongodb && config.s3 && config.mongodb.url && config.s3.key && config.s3.secret);
@@ -26,7 +27,9 @@ function dumpToS3(config, callback) {
         filename = config.s3.folder + '/mongo_' + backupTS + '_' + dbName + '.dmp';
     }
 
-    var params = {Bucket: config.s3.bucket, Key: filename, Body: stream};
+    var uploadStream = config.compressed ? stream.pipe(zlib.createGzip()) : stream;
+
+    var params = {Bucket: config.s3.bucket, Key: filename, Body: uploadStream};
     var partSizeMB = config.s3.partSizeMB || 5;
     var queueSize = config.s3.queueSize || 1;
     var options = {partSize: partSizeMB * 1024 * 1024, queueSize: queueSize};

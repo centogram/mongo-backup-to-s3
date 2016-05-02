@@ -18,7 +18,7 @@ function dumpToS3(config, callback) {
     var stream = new MemoryStream();
     var urlTokens = config.mongodb.url.split('/');
     var dbName = urlTokens[urlTokens.length - 1];
-    var s3 = new AWS.S3({accessKeyId: config.s3.key, secretAccessKey: config.s3.secret});
+    var s3 = new AWS.S3({accessKeyId: config.s3.key, secretAccessKey: config.s3.secret, region: config.s3.region});
     var tsFormat = config.s3.timestampFormat || 'YYYY-MM-DD_HH:mm:ss';
     var backupTS = moment().format(tsFormat);
     var filename = 'mongo_' + backupTS + '.dmp';
@@ -30,9 +30,6 @@ function dumpToS3(config, callback) {
     var uploadStream = config.compressed ? stream.pipe(zlib.createGzip()) : stream;
 
     var params = {Bucket: config.s3.bucket, Key: filename, Body: uploadStream};
-    if(config.s3.region){
-      params.Region = config.s3.region;
-    }
     var partSizeMB = config.s3.partSizeMB || 5;
     var queueSize = config.s3.queueSize || 1;
     var options = {partSize: partSizeMB * 1024 * 1024, queueSize: queueSize};

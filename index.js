@@ -30,9 +30,12 @@ function dumpToS3(config, callback) {
     var uploadStream = config.compressed ? stream.pipe(zlib.createGzip()) : stream;
 
     var params = {Bucket: config.s3.bucket, Key: filename, Body: uploadStream};
+<<<<<<< HEAD
     if(config.s3.region){
       params.Region = config.s3.region;
     }
+=======
+>>>>>>> origin/feature/compressUploadStream
     var partSizeMB = config.s3.partSizeMB || 5;
     var queueSize = config.s3.queueSize || 1;
     var options = {partSize: partSizeMB * 1024 * 1024, queueSize: queueSize};

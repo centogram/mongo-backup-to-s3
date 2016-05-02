@@ -21,10 +21,10 @@ function dumpToS3(config, callback) {
     var s3 = new AWS.S3({accessKeyId: config.s3.key, secretAccessKey: config.s3.secret, region: config.s3.region});
     var tsFormat = config.s3.timestampFormat || 'YYYY-MM-DD_HH:mm:ss';
     var backupTS = moment().format(tsFormat);
-    var filename = (config.filename || ('mongo_' + backupTS)) + '.dmp';
+    var filename = (config.s3.filename || ('mongo_' + backupTS)) + '.dmp';
 
     if (config.s3.folder) {
-        filename = config.s3.folder + '/' + (config.filename || ('mongo_' + backupTS + '_' + dbName)) + '.dmp';
+        filename = config.s3.folder + '/' + (config.s3.filename || ('mongo_' + backupTS + '_' + dbName)) + '.dmp';
     }
 
     if(config.compressed){
@@ -46,10 +46,6 @@ function dumpToS3(config, callback) {
         else {
             console.log('### s3.upload complete:', err, data);
         }
-
-    }).on('httpUploadProgress', function (evt) {
-
-        console.log('### s3.httpUploadProgress:', evt.loaded, '/', evt.total);
     });
 
     mds.dump(config.mongodb.url, stream, function (err) {

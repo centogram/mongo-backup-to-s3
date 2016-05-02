@@ -27,6 +27,10 @@ function dumpToS3(config, callback) {
         filename = config.s3.folder + '/mongo_' + backupTS + '_' + dbName + '.dmp';
     }
 
+    if(config.compressed){
+      filename = filename + ".gz";
+    }
+
     var uploadStream = config.compressed ? stream.pipe(zlib.createGzip()) : stream;
 
     var params = {Bucket: config.s3.bucket, Key: filename, Body: uploadStream};
